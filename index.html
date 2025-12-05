@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Türk Dili Dersi Yoklama Sistemi</title>
+
+    <style>
+        /* ======================================= */
+        /* CSS STİLLERİ */
+        /* ======================================= */
+
+        :root {
+            --primary-color: #E81D25; /* Kırmızı */
+            --secondary-color: #FFFFFF; /* Beyaz */
+            --text-color: #333;
+            --danger-color: #ff4d4f;
+            --success-color: #155724;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background-color: var(--secondary-color);
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        /* Logo Stili */
+        .header-logo {
+            display: block;
+            width: 100px;
+            height: auto; 
+            margin: 0 auto 10px;
+            max-width: 150px; 
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        /* ------------------------------------------- */
+        /* Öğrenci Numarası Ok Tuşlarını Kaldırma CSS'i */
+        /* ------------------------------------------- */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        /* ------------------------------------------- */
+
+        .error-text {
+            color: var(--danger-color); 
+            font-size: 0.8em; 
+            margin-top: 5px; 
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #c9181e; 
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            display: none; 
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: var(--danger-color);
+            border: 1px solid #f5c6cb;
+        }
+
+        #status-area {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #fff3cd;
+            color: #856404;
+            font-weight: bold;
+            display: block;
+        }
+
+        .admin-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <img src="uni-logo.png" alt="Üniversite Logosu" class="header-logo">
+            <h1>Türk Dili Dersi Yoklama</h1>
+        </header>
+
+        <div id="status-area">
+            Konum Alınıyor... Lütfen Bekleyiniz.
+        </div>
+
+        <form id="attendance-form">
+            <div class="form-group">
+                <label for="name">İsim:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="surname">Soyisim:</label>
+                <input type="text" id="surname" name="surname" required>
+            </div>
+            <div class="form-group">
+                <label for="student-number">Öğrenci Numarası (9 Hane):</label>
+                <input 
+                    type="number" 
+                    id="student-number" 
+                    name="student-number" 
+                    required 
+                    pattern="[0-9]{9}" 
+                    maxlength="9" 
+                    oninput="if(this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                >
+                <p id="number-error" class="error-text">
+                    Öğrenci numaranızı doğru kodlayınız (9 hane olmalı).
+                </p>
+            </div>
+
+            <button type="submit" id="submit-button" disabled>Yoklamayı Gönder</button>
+        </form>
+
+        <div id="result-message" class="message"></div>
+
+        <div class="admin-footer">
+            Sistem sürümü 1.0
+        </div>
+    </div>
+
+    <script>
+        /* ======================================= */
+        /* JAVASCRIPT KODLARI */
+        /* ======================================= */
+
+        // ARKA UÇ UYARISI: Bu URL'yi Apps Script ile aldığınız gerçek API adresinizle DEĞİŞTİRİN.
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyhu44O52K9o2ciseSTaYRGEm_Kxc7ueWVXltc3Z9UgH32okTY6Cw7yfAtciDe0Lzbz/exec'; 
+
+        // --- Sabitler ve Değişkenler ---
+        // Konferans Salonu Koordinatları (37°02'23.7"N 35°23'07.9"E)
+        const TARGET_LATITUDE = 37.04000;
+        const TARGET_LONGITUDE = 35.38553;
+
+        // Admin kontrolü için belirlenen parametre
+        const ADMIN_PARAM = 'alperen=1479';
+        const IS_ADMIN_PAGE = window.location.search.includes(ADMIN_PARAM);
+
+        // Mesafe sınırı: Normal öğrenci için 70m. Admin için kontrol atlandı.
+        const MAX_DISTANCE_METERS = 70; 
+
+        const form = document.getElementById('attendance-form');
+        const submitButton = document.getElementById('submit-button');
+        const statusArea = document.getElementById('status-area');
+        const resultMessage = document.getElementById('result-message');
+        const studentNumberInput = document.getElementById('student-number');
+        const numberError = document.getElementById('number-error');
+
+        let userLocation = null; 
+
+        // --- Yardımcı Fonksiyonlar ---
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; 
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c; 
+        }
+
+        function showMessage(text, type) {
+            resultMessage.innerHTML = text;
+            resultMessage.className = `message ${type}`;
+            resultMessage.style.display = 'block';
+            setTimeout(() => {
+                resultMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // --- Konum İşlemleri ---
+        function successCallback(position) {
+            const userLat = position.coords.latitude;
+            const userLon = position.coords.longitude;
+            userLocation = { latitude: userLat, longitude: userLon };
+            
+            // YENİ KONTROL: Admin modu ise mesafe kontrolü atlanır
+            if (IS_ADMIN_PAGE) {
+                statusArea.className = 'message success';
+                statusArea.innerHTML = `✅ Admin Modu Aktif. Konum Kontrolü Atlandı.`;
+                submitButton.disabled = false; // Her zaman aktif
+                return; 
+            }
+            
+            // Normal Kullanıcı Kontrolü
+            const distance = calculateDistance(userLat, userLon, TARGET_LATITUDE, TARGET_LONGITUDE);
+            
+            if (distance <= MAX_DISTANCE_METERS) {
+                statusArea.className = 'message success';
+                statusArea.innerHTML = `✅ Konum Doğrulandı! Mesafe: ${distance.toFixed(2)} metre.`;
+                submitButton.disabled = false;
+            } else {
+                statusArea.className = 'message error';
+                statusArea.innerHTML = `❌ Konum Hatası! Konferans salonundan ${distance.toFixed(2)} metre uzaktasınız. Sınır: ${MAX_DISTANCE_METERS} metre.`;
+                submitButton.disabled = true;
+            }
+        }
+
+        function errorCallback(error) {
+            statusArea.className = 'message error';
+            let errorMessage = '';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "Konum izni verilmedi. Yoklama gönderilemez.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "Konum bilgisi mevcut değil.";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "Konum alma zaman aşımına uğradı.";
+                    break;
+                default:
+                    errorMessage = "Konum alma hatası: " + error.message;
+                    break;
+            }
+            statusArea.innerHTML = `❌ Konum Hatası: ${errorMessage}`;
+            submitButton.disabled = true;
+        }
+
+        function requestLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+                    enableHighAccuracy: true,
+                    timeout: 10000, 
+                    maximumAge: 0 
+                });
+            } else {
+                statusArea.className = 'message error';
+                statusArea.innerHTML = "❌ Tarayıcınız Konum Servisini desteklemiyor.";
+                submitButton.disabled = true;
+            }
+        }
+
+        // --- Olay Dinleyicileri ---
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 1. 9 Haneli Öğrenci Numarası Kontrolü
+            if (studentNumberInput.value.length !== 9) {
+                numberError.style.display = 'block';
+                showMessage("❌ Lütfen öğrenci numaranızı doğru kodlayınız (9 hane olmalı).", 'error');
+                return; 
+            } else {
+                numberError.style.display = 'none';
+            }
+
+            // 2. Cihaz Kısıtlaması Kontrolü (Admin hariç)
+            if (!IS_ADMIN_PAGE && localStorage.getItem('yoklama_basarili') === 'true') {
+                showMessage("❌ Bu cihazdan daha önce başarılı yoklama alınmıştır.", 'error');
+                return;
+            }
+            
+            // 3. Konum Kontrolü
+            if (!IS_ADMIN_PAGE && submitButton.disabled) {
+                showMessage("❌ Konumunuz doğrulanmadığı için yoklama gönderilemiyor.", 'error');
+                return;
+            }
+
+            // --- ARKA UÇ VERİ GÖNDERİMİ ---
+            
+            const distance = userLocation 
+                             ? calculateDistance(userLocation.latitude, userLocation.longitude, TARGET_LATITUDE, TARGET_LONGITUDE).toFixed(2) 
+                             : 'N/A';
+
+            const attendanceData = {
+                name: document.getElementById('name').value,
+                surname: document.getElementById('surname').value,
+                studentNumber: studentNumberInput.value,
+                latitude: userLocation ? userLocation.latitude : 'N/A', 
+                longitude: userLocation ? userLocation.longitude : 'N/A',
+                distance: distance, // Mesafe
+                isAdmin: IS_ADMIN_PAGE 
+            };
+            
+            // API_URL'niz tanımlanmışsa gerçek gönderimi yapın
+            if (API_URL !== 'GOOGLE_APPS_SCRIPT_API_URL_BURAYA_GELMELI') {
+                fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(attendanceData)
+                })
+                .then(() => {
+                    // Apps Script genellikle başarılı yanıtta bile 'no-cors' nedeniyle burayı atlar.
+                    if (!IS_ADMIN_PAGE) {
+                        localStorage.setItem('yoklama_basarili', 'true');
+                    }
+                    showMessage("✅ Yoklama Başarıyla Gönderildi! Veri E-Tabloya Kaydedildi.", 'success');
+                    form.reset();
+                    submitButton.disabled = true;
+                    requestLocation(); 
+                })
+                .catch(error => {
+                    showMessage("❌ Sunucu bağlantı hatası veya ağ sorunu.", 'error');
+                });
+            } else {
+                // SİMÜLASYON: API_URL tanımlı değilse gösterilir
+                if (!IS_ADMIN_PAGE) {
+                    localStorage.setItem('yoklama_basarili', 'true');
+                }
+                showMessage(`✅ Yoklama Başarıyla Gönderildi! (SİMÜLASYON. API URL'sini giriniz)`, 'success');
+                form.reset();
+                submitButton.disabled = true;
+                requestLocation();
+            }
+
+        });
+
+        // Sayfa yüklendiğinde Başlangıç Kontrolü
+        function init() {
+            if (!IS_ADMIN_PAGE && localStorage.getItem('yoklama_basarili') === 'true') {
+                statusArea.className = 'message error';
+                statusArea.innerHTML = "❌ Bu cihazdan daha önce başarılı yoklama alınmıştır. Yeni kayıt yapılamaz.";
+                submitButton.disabled = true;
+            } else {
+                requestLocation();
+            }
+        }
+
+        init();
+        /* ======================================= */
+        /* JAVASCRIPT KODLARI BİTİŞİ */
+        /* ======================================= */
+    </script>
+
+</body>
+</html>
