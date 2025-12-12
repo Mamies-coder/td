@@ -222,15 +222,15 @@
 
         // --- Sabitler ve Değişkenler ---
         // Konferans Salonu Koordinatları (37°02'23.7"N 35°23'07.9"E)
-        const TARGET_LATITUDE = 37.04000;
-        const TARGET_LONGITUDE = 35.38553;
+        const TARGET_LATITUDE = 37.0398966;
+        const TARGET_LONGITUDE = 35.3855779;
 
         // Admin kontrolü için belirlenen parametre
         const ADMIN_PARAM = 'alperen=1479';
         const IS_ADMIN_PAGE = window.location.search.includes(ADMIN_PARAM);
 
         // Mesafe sınırı: Normal öğrenci için 70m. Admin için kontrol atlandı.
-        const MAX_DISTANCE_METERS = 70; 
+        const MAX_DISTANCE_METERS = 40; 
 
         const form = document.getElementById('attendance-form');
         const submitButton = document.getElementById('submit-button');
@@ -425,6 +425,7 @@
 </body>
 
 </html>
+
 
 
 
